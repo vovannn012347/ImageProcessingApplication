@@ -1,0 +1,42 @@
+﻿<h2>Login</h2>
+
+<div id="loginForm">
+    <form id="loginForm" method="post">
+        <div>
+            <label for="username">Login:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <button type="button" onclick="submitLogin()">Login</button>
+    </form>
+
+    <div id="loginResult"></div>
+</div>
+
+@section scripts {
+    <script>
+        async function submitLogin() {
+            const usernameValue = document.getElementById("username").value;
+            const passwordValue = document.getElementById("password").value;
+            const resultDiv = document.getElementById("loginResult");
+            resultDiv.innerHTML = '';
+
+            $.ajax({
+                url: '/api/user',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ login: usernameValue, password: passwordValue }),
+                success: function (response) {
+                    TokenTracker.setToken(response.token, 1);
+                    window.location.href = '/Home/Index';
+                },
+                error: function (xhr, status, error) {
+                    resultDiv.innerHTML = `<p style="color: red;">${xhr.responseText}</p>`;
+                }
+            });
+        }
+    </script>
+}

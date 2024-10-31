@@ -1,0 +1,94 @@
+﻿Processes
+<table class="processTable" id="ProcessTable">
+    <tr>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Friendly Name</th>
+    </tr>
+
+</table>
+<style>
+    .processTable tr td
+    {
+        padding: 4px;
+    }
+</style>
+
+@section scripts {
+    <script>
+        (() => {
+            TokenTracker.waitForToken().then(() => {
+
+                $.ajax({
+                    url: '/api/process',
+                    type: 'GET',
+                    success: function (response) {
+                        for (const [index, value] of response.entries()) {
+                            var name = value.CodeName;
+                            var id = value.ProcessId;
+                            var friendlyName = value.FriendlyName;
+                            var newRow = `
+                                <tr>
+                                    <td>${name}</td>
+                                    <td><a href=\"/Process/Algorithm?id=${id}\">${id}</td>
+                                    <td>${friendlyName}</td>
+                                </tr>
+                            `;
+
+                            // Append the new row to the table body
+                            $('#ProcessTable').append(newRow);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', xhr.responseText);
+                    }
+                });
+            });
+        })();
+    </script>
+}
+
+
+
+@*
+    // Event listener for button click
+    $('#addRow').click(function() {
+        // Create a new row with inputs
+        var newRow = `
+            <tr>
+                <td><input type="text" placeholder="Enter name"></td>
+                <td><input type="number" placeholder="Enter age"></td>
+                <td><button class="removeRow">Remove</button></td>
+            </tr>
+        `;
+        // Append the new row to the table body
+        $('#myTable tbody').append(newRow);
+    });
+
+    $(document).ready(function() {
+              $('#submitBtn').click(function() {
+                  // Get form data
+                  var formData = {
+                      name: $('#name').val(),
+                      email: $('#email').val()
+                  };
+
+                  // Send POST request via jQuery
+                  $.ajax({
+                      url: '/your/api/endpoint', // Replace with your API endpoint
+                      type: 'POST',
+                      data: JSON.stringify(formData),
+                      contentType: 'application/json; charset=utf-8',
+                      dataType: 'json',
+                      success: function(response) {
+                          // Handle success response
+                          $('#response').html('Success: ' + JSON.stringify(response));
+                      },
+                      error: function(xhr, status, error) {
+                          // Handle error response
+                          $('#response').html('Error: ' + xhr.responseText);
+                      }
+                  });
+              });
+          });
+*@

@@ -10,11 +10,15 @@ namespace ImageProcessingApplication
             //tis important
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            //REST attribute routing for areas
+            routes.MapMvcAttributeRoutes();
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
+
         }
     }
 }

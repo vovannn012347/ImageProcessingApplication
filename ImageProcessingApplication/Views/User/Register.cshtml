@@ -1,0 +1,46 @@
+﻿<h2>Register</h2>
+
+<div id="registerForm">
+    <form id="registerForm" method="post">
+        <div>
+            <label for="username">Login:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <button type="button" onclick="submitRegister()">Submit</button>
+    </form>
+
+    <div id="submitResult"></div>
+</div>
+
+@section scripts {
+    <script>
+        async function submitRegister() {
+            const usernameValue = document.getElementById("username").value;
+            const passwordValue = document.getElementById("password").value;
+            const resultDiv = document.getElementById("submitResult");
+            resultDiv.innerHTML = '';
+
+            $.ajax({
+                url: '/api/user',
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    username: usernameValue,
+                    password: passwordValue,
+                    passwordRepeat: passwordValue
+                }),
+                success: function (response) {
+                    TokenTracker.setToken(response.token, 1);
+                    window.location.href = '/Home/Index';
+                },
+                error: function (xhr, status, error) {
+                    resultDiv.innerHTML = `<p style="color: red;">${xhr.responseText}</p>`;
+                }
+            });
+        }
+    </script>
+}

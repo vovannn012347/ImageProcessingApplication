@@ -12,14 +12,5 @@ namespace ImageProcessingApplication.Controllers
 
             return View();
         }
-
-        public ActionResult ModelAction()
-        {
-            ViewBag.Title = "Model Action Page";
-
-            string sampleString = "Sample " + DateTime.Now.Millisecond;
-
-            return View(new SampleModel { SampleString = sampleString });
-        }
     }
 }

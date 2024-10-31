@@ -1,0 +1,254 @@
+﻿@using ImageProcessingApplication.Models
+@model ProcessAlgorithmModel
+
+<div>
+    Input data form
+    <form data-id="@Model.Id" id="ProcessTable" method="post" enctype="multipart/form-data">
+    </form>
+    <button onclick="sendForm()">Submit</button>
+</div>
+<div id="result">
+    <table class="output-table">
+        <tr>
+            <th> Name </th>
+            <th> Value </th>
+        </tr>
+
+    </table>
+</div>
+
+<template id="stringInputTemplate">
+    <label for=""></label>
+    <input type="text" id="" name="" required />
+</template>
+<template id="imageInputTemplate">
+    <label for=""></label>
+    <input type="file" accept="image/*" style="display: none;" id="" name="" required />
+    <label for="" style="cursor: pointer;">
+        <img src="" alt="Upload Image" width="100" height="100" />
+    </label>
+</template>
+<template id="integerInputTemplate">
+    <label for=""></label>
+    <input type="number" step="1" id="" name="" required />
+</template>
+<template id="doubleInputTemplate">
+    <label for=""></label>
+    <input type="number" step="0.01" id="" name="" required />
+</template>
+
+<template id="stringOutputTemplate">
+    <tr>
+        <td><label class="name-label"></label> </td>
+        <td><label class="value-label"></label></td>
+    </tr>
+</template>
+<template id="imageOutputTemplate">
+    <tr>
+        <td><label class="name-label"></label> </td>
+        <td><img src="" alt="Result Image" width="200" height="200" /></td>
+    </tr>
+</template>
+<template id="integerOutputTemplate">
+    <tr>
+        <td><label class="name-label"></label> </td>
+        <td><label class="value-label"></label></td>
+    </tr>
+</template>
+<template id="doubleOutputTemplate">
+    <tr>
+        <td><label class="name-label"></label> </td>
+        <td><label class="value-label"></label></td>
+    </tr>
+</template>
+
+@section scripts {
+    <script>
+        const ArgumentType = {
+            String: 0,
+            Image: 1,
+            Integer: 2,
+            Double: 3
+        };
+
+        const ArgumentInputTypeId = [
+            "#stringInputTemplate",
+            "#imageInputTemplate",
+            "#integerInputTemplate",
+            "#doubleInputTemplate"
+        ];
+
+        const ArgumentOutputTypeId = [
+            "#stringOutputTemplate",
+            "#imageOutputTemplate",
+            "#integerOutputTemplate",
+            "#doubleOutputTemplate"
+        ];
+
+
+        var outputData = '';
+
+        function sendForm() {
+            const formData = new FormData($('#ProcessTable')[0]); // Create FormData object from the form
+
+            var idvalue = $('#ProcessTable').data('id');
+            var url = `/api/process/${idvalue}`;
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                processData: false, // Important: prevent jQuery from processing the data
+                contentType: false, // Important: prevent jQuery from overriding the content type
+                success: function (res) {
+                    response = JSON.parse(res)
+                    //console.log('Form submitted successfully:', response);
+                    for (const [index, value] of outputData.entries()) {
+                        if (value.Type >= 0 && value.Type < ArgumentOutputTypeId.length) {
+                            var filteredValues = response.filter(item => item.Name == value.Name);
+                            filteredValues.forEach(item => {
+                                const $templateContent = $($(ArgumentOutputTypeId[value.Type]).html());
+
+                                const $nameLabel = $templateContent.filter('.name-label');
+                                $nameLabel.text(value.Name);
+
+                                if (value.Type == ArgumentType.Image) {
+                                    const $value = $templateContent.filter('img');
+                                    $value.attr('src', item.value);
+                                }
+                                else
+                                {
+                                    const $valueLabel = $templateContent.filter('.value-label');
+                                    $valueLabel.text(value.Name);
+                                }
+                            });
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Form submission error:', error);
+                }
+            });
+        }
+
+        function constructForm(algInputData) {
+            $('#ProcessTable').empty();
+            outputData = algInputData.OutputParams;
+
+            for (const [index, value] of algInputData.InputParams.entries()) {
+                if (value.Type >= 0 && value.Type < ArgumentInputTypeId.length) {
+                    const $templateContent = $($(ArgumentInputTypeId[value.Type]).html());
+
+                    const $label = $templateContent.filter('label');
+                    const $input = $templateContent.filter('input');
+
+                    $label.attr('for', value.Name);
+
+                    $input.attr('name', value.Name).attr('id', value.Name);
+
+                    $("#ProcessTable").append($label, $input, '<br>');
+
+                    const firstLabelWithoutImage = $label.filter(function () {
+                        return $(this).find('img').length === 0;
+                    }).first();
+
+                    if (firstLabelWithoutImage.length) {
+                        firstLabelWithoutImage.text(value.Name);
+                    }
+                }
+            }
+
+
+            $('input[type="file"]').change(function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        $(event.target)
+                            .siblings('label')
+                            .find('img')
+                            .attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        (() => {
+            var idvalue = $('#ProcessTable').data('id');
+            var url = `/api/process/${idvalue}`;
+
+            TokenTracker.waitForToken().then(() => {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        constructForm(JSON.parse(response));
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', xhr.responseText);
+                    }
+                });
+            });
+        })();
+    </script>
+}
+
+
+@*
+     function createForm() {
+                // Create form element
+                const $form = $('<form>', { method: 'post', action: '/submit-form' });
+
+                // Populate the form with fields from templates
+                fields.forEach(field => {
+                    // Clone the specified template
+                    const $templateContent = $($(field.templateId).html());
+
+                    // Set label text and for attribute
+                    const $label = $templateContent.filter('label');
+                    const $input = $templateContent.filter('input');
+                    $label.text(field.label).attr('for', field.name);
+
+                    // Set input attributes
+                    $input.attr('name', field.name).attr('id', field.name);
+
+                    // Append field to form
+                    $form.append($label, $input, '<br>'); // Adding <br> for line breaks
+                });
+
+                // Add submit button from template
+                const $submitButton = $($('#submitTemplate').html());
+                $form.append($submitButton);
+
+                // Append form to the form container
+                $('#formContainer').append($form);
+            }
+
+    $(document).ready(function() {
+              $('#submitBtn').click(function() {
+                  // Get form data
+                  var formData = {
+                      name: $('#name').val(),
+                      email: $('#email').val()
+                  };
+
+                  // Send POST request via jQuery
+                  $.ajax({
+                      url: '/your/api/endpoint', // Replace with your API endpoint
+                      type: 'POST',
+                      data: JSON.stringify(formData),
+                      contentType: 'application/json; charset=utf-8',
+                      dataType: 'json',
+                      success: function(response) {
+                          // Handle success response
+                          $('#response').html('Success: ' + JSON.stringify(response));
+                      },
+                      error: function(xhr, status, error) {
+                          // Handle error response
+                          $('#response').html('Error: ' + xhr.responseText);
+                      }
+                  });
+              });
+          });
+*@

@@ -1,17 +1,50 @@
 ﻿body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+/*
+    padding-top: 50px;
+    padding-bottom: 20px;*/
+}
+
+.navbar {
+    display: flex;
+    
+    align-items: center; /* Center items vertically */
+    background-color: #333;
+    padding: 10px 20px;
+}
+
+.navbar-logo .logo {
+    height: 40px;
+}
+
+.navbar-user {
+    margin: auto 0 0 0;
+}
+
+.navbar-user .user-icon {
+    height: 30px; /* Adjust user icon height */
+    margin-right: 10px; /* Space between icon and username */
+}
+
+.username {
+    font-size: 16px;
+}
+
+/*body {
     padding-top: 50px;
     padding-bottom: 20px;
-}
+}*/
 
 /* Set padding to keep content from hitting the edges */
-.body-content {
+/*.body-content {
     padding-left: 15px;
     padding-right: 15px;
-}
+}*/
 
 /* Set width on the form input elements since they're 100% wide by default */
-input,
+/*input,
 select,
 textarea {
     max-width: 280px;
-}
+}*/

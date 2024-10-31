@@ -8,7 +8,7 @@ namespace ImageProcessingApplication
         public static void RegisterBundles(BundleCollection bundles)
         {
             //dont need it for now
-            /*
+            
             //standart jquery
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
@@ -19,12 +19,16 @@ namespace ImageProcessingApplication
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
-
+            /*
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
             // ready for production, use the build tool at https://modernizr.com to pick only the tests you need.
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
             */
+
+            //site login tracker
+            bundles.Add(new ScriptBundle("~/bundles/site").Include(
+                        "~/Scripts/site/login-tracker.js"));
         }
     }
 }
