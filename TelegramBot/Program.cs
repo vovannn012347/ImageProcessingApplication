@@ -17,7 +17,7 @@ namespace TelegramBot
     {
         public static void Main(string[] args)
         {
-            var botToken = "YOUR_TELEGRAM_BOT_TOKEN";
+            var botToken = SecretConstants.BotToken;
             var cts = new CancellationTokenSource();
             var bot = new TelegramBot(botToken);
 

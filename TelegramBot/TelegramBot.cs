@@ -110,7 +110,7 @@ namespace TelegramBot
                 // Reply to the user
                 await botClient.SendTextMessageAsync(
                     chatId: chatId,
-                    text: $"Hello, {firstName}! Your user ID is {userId}.",
+                    text: $"Hello, {firstName}({userId})! Your message is {messageText}.",
                     cancellationToken: cancellationToken
                 );
 
