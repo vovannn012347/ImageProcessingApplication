@@ -113,14 +113,17 @@
                                 $nameLabel.text(value.Name);
 
                                 if (value.Type == ArgumentType.Image) {
-                                    const $value = $templateContent.filter('img');
-                                    $value.attr('src', item.value);
+                                    const $value = $templateContent.find('img');
+                                    var img = "/File/ResultImage" + "?imageName=" + item.Value;
+                                    $value.attr('src', img);
                                 }
                                 else
                                 {
                                     const $valueLabel = $templateContent.filter('.value-label');
                                     $valueLabel.text(value.Name);
                                 }
+
+                                $('#result .output-table').append($templateContent);
                             });
                         }
                     }

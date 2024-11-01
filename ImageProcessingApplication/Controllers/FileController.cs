@@ -50,7 +50,7 @@ namespace ImageProcessingApplication.Controllers
 
         public ActionResult ResultImage(string imageName)
         {
-            var fileDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Algorithms", "Results");
+            var fileDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "Algorithms", "Results");
             var filePath =  Path.Combine(fileDir, imageName);
 
             if (System.IO.File.Exists(filePath))

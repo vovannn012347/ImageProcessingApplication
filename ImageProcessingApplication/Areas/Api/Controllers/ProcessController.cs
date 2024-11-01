@@ -154,7 +154,6 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
 
             if (id == "sobel_processing_guid")
             {
-                Argument[] result = null;
                 //here should be algorithm selection from database
                 //i dont have time for it right now
                 //so will be using handwritten stubs
@@ -246,7 +245,7 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                     }
                 }
 
-                string algorithmResultsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Algorithms", "Results");
+                string algorithmResultsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "Algorithms", "Results");
                 if (!Directory.Exists(algorithmResultsDirectory))
                     Directory.CreateDirectory(algorithmResultsDirectory);
 
@@ -254,7 +253,7 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                 //sandboxdomain does not work as i need to load additional assemblies and it is fucked in that way
 
                 
-                var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin", "Algorithms", "ImageProcessingSobel.dll");
+                var assemblyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin", "Algorithms", "SobelEdgeDetection3.dll");
                 /*var assemblyDllsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
 
                 PermissionSet permissionSet = new PermissionSet(PermissionState.None);
@@ -292,123 +291,144 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                     return InternalServerError(ex);
                 }*/
 
-                try
-                {
-                    Type baseType = typeof(ProcessAlgorithm); // Replace with your type name
 
-                    //TODO: move this to algorithm upload
+                DllResolver.Touch();
+                var resultWork = await DoStuff(assemblyPath, algorithmResultsDirectory, arguments);
 
-                    //Assembly loadedAssembly = Assembly.LoadFile(assemblyPath);
-                    Assembly loadedAssembly = Assembly.LoadFile(assemblyPath);
-
-                    //var assemblyName = AssemblyName.GetAssemblyName(assemblyPath).FullName;
-                    //sandboxedDomain.ExecuteAssembly(assemblyPath);
-                    //Assembly loadedAssembly = sandboxedDomain.Load(AssemblyName.GetAssemblyName(assemblyPath));
-
-                    //var assemblyName = loadedAssembly.GetName();
-                    //Assembly loadedAssembly = sandboxedDomain.Load(File.ReadAllBytes(assemblyPath));
-
-                    // Find all types that inherit from the specified base type
-                    var derivedTypes =
-                        loadedAssembly.GetTypes()
-                        .Where(type => baseType.IsAssignableFrom(type) && type != baseType && !type.IsAbstract);
-
-                    if (derivedTypes.Count() != 1)
-                        throw new ArgumentException("Must be single executing class");
-
-                    var derivedType = derivedTypes.FirstOrDefault();
-                    var fullyQualifiedName = derivedTypes.FirstOrDefault().FullName;
-
-                    ProcessAlgorithm processorClass = (ProcessAlgorithm)Activator.CreateInstance(derivedType);
-
-                    //ProcessAlgorithm sandboxedInstance = (ProcessAlgorithm)sandboxedDomain.CreateInstanceAndUnwrap(loadedAssembly.FullName, fullyQualifiedName);
-
-                    result = await processorClass.Process(algorithmResultsDirectory, arguments.ToArray());
-                }
-                catch(Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
+                return resultWork;
                 //finally
                 //{
                 //    // Unload the sandboxed AppDomain
                 //    AppDomain.Unload(sandboxedDomain);
                 //}
 
-                return Ok(JsonConvert.SerializeObject(result));
             }
 
             return BadRequest("Not Found");
         }
 
+        private async Task<IHttpActionResult> DoStuff(string assemblyPath, string algorithmResultsDirectory, List<Argument> arguments)
+        {
+            Argument[] result = null;
+            try
+            {
+                Type baseType = typeof(ProcessAlgorithm); // Replace with your type name
 
-            /*
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>Upload Model with Files</title>
-            </head>
-            <body>
-                <form id="uploadForm">
-                    <div>
-                        <label>Title:</label>
-                        <input type="text" name="Title" id="title" required />
-                    </div>
-                    <br />
-                    <div>
-                        <label>Description:</label>
-                        <textarea name="Description" id="description" required></textarea>
-                    </div>
-                    <br />
-                    <div>
-                        <label>Select files:</label>
-                        <input type="file" id="multipleFiles" name="multipleFiles" multiple required />
-                    </div>
-                    <br />
-                    <div>
-                        <label>Select files:</label>
-                        <input type="file" id="files" name="files" required />
-                    </div>
-                    <button type="button" onclick="uploadData()">Upload</button>
-                </form>
+                //var opencv = Path.Combine(Path.GetDirectoryName(assemblyPath), "OpenCvSharp.dll");
 
-                <script>
-                    async function uploadData() {
-                        const form = document.getElementById('uploadForm');
-                        const formData = new FormData();
+                //Assembly loadedAssembly = Assembly.LoadFrom(opencv);// AppDomain.CurrentDomain.Load("OpenCvSharp");
+                //var domainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-                        // Add form fields
-                        formData.append("Title", document.getElementById("title").value);
-                        formData.append("Description", document.getElementById("description").value);
+                //loadedAssembly = AppDomain.CurrentDomain.Load("OpenCvSharpExtern");
+                //domainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-                        // Add files
-                        const files = document.getElementById("files").files;
-                        for (let i = 0; i < files.length; i++) {
-                            formData.append("Files", files[i]); // "Files" matches the parameter name in the controller
-                        }
+                var loadedAssembly = AppDomain.CurrentDomain.Load(AssemblyName.GetAssemblyName(assemblyPath));
+                var domainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                //TODO: move this to algorithm upload
 
-                        try {
-                            const response = await fetch('/api/fileupload/upload', {
-                                method: 'POST',
-                                body: formData
-                            });
+                //Assembly loadedAssembly = Assembly.LoadFile(assemblyPath);
+                //Assembly loadedAssembly = Assembly.LoadFrom(assemblyPath);
 
-                            if (response.ok) {
-                                const result = await response.json();
-                                alert("Upload successful: " + JSON.stringify(result));
-                            } else {
-                                alert("Upload failed.");
-                            }
-                        } catch (error) {
-                            console.error("Error:", error);
-                            alert("An error occurred during upload.");
-                        }
+                //var assemblyName = AssemblyName.GetAssemblyName(assemblyPath).FullName;
+                //sandboxedDomain.ExecuteAssembly(assemblyPath);
+                //Assembly loadedAssembly = sandboxedDomain.Load(AssemblyName.GetAssemblyName(assemblyPath));
+
+                //var assemblyName = loadedAssembly.GetName();
+                //Assembly loadedAssembly = sandboxedDomain.Load(File.ReadAllBytes(assemblyPath));
+
+                // Find all types that inherit from the specified base type
+                var derivedTypes =
+                    loadedAssembly.GetTypes()
+                    .Where(type => baseType.IsAssignableFrom(type) && type != baseType && !type.IsAbstract);
+
+                if (derivedTypes.Count() != 1)
+                    throw new ArgumentException("Must be single executing class");
+
+                var derivedType = derivedTypes.FirstOrDefault();
+                var fullyQualifiedName = derivedTypes.FirstOrDefault().FullName;
+
+                ProcessAlgorithm processorClass = (ProcessAlgorithm)Activator.CreateInstance(derivedType);
+
+                //ProcessAlgorithm sandboxedInstance = (ProcessAlgorithm)sandboxedDomain.CreateInstanceAndUnwrap(loadedAssembly.FullName, fullyQualifiedName);
+
+                result = await processorClass.Process(algorithmResultsDirectory, arguments.ToArray());
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+            return Ok(JsonConvert.SerializeObject(result));
+        }
+
+
+        /*
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Upload Model with Files</title>
+        </head>
+        <body>
+            <form id="uploadForm">
+                <div>
+                    <label>Title:</label>
+                    <input type="text" name="Title" id="title" required />
+                </div>
+                <br />
+                <div>
+                    <label>Description:</label>
+                    <textarea name="Description" id="description" required></textarea>
+                </div>
+                <br />
+                <div>
+                    <label>Select files:</label>
+                    <input type="file" id="multipleFiles" name="multipleFiles" multiple required />
+                </div>
+                <br />
+                <div>
+                    <label>Select files:</label>
+                    <input type="file" id="files" name="files" required />
+                </div>
+                <button type="button" onclick="uploadData()">Upload</button>
+            </form>
+
+            <script>
+                async function uploadData() {
+                    const form = document.getElementById('uploadForm');
+                    const formData = new FormData();
+
+                    // Add form fields
+                    formData.append("Title", document.getElementById("title").value);
+                    formData.append("Description", document.getElementById("description").value);
+
+                    // Add files
+                    const files = document.getElementById("files").files;
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append("Files", files[i]); // "Files" matches the parameter name in the controller
                     }
-                </script>
-            </body>
-            </html>
-            */
+
+                    try {
+                        const response = await fetch('/api/fileupload/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            alert("Upload successful: " + JSON.stringify(result));
+                        } else {
+                            alert("Upload failed.");
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                        alert("An error occurred during upload.");
+                    }
+                }
+            </script>
+        </body>
+        </html>
+        */
         [HttpPost]
         [Route("")]
         public async Task<IHttpActionResult> AddProcess()
@@ -483,17 +503,30 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
 
     }
 
-    [Serializable]
     public static class DllResolver
     {
         static string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         static string algorithmsDirectory = Path.Combine(baseDirectory, "bin", "Algorithms");
-        public static void Touch() { }
-        public static Assembly PluginAppDomain_LoadAssembly(object sender, ResolveEventArgs args)
-
+        static string binDirectory = Directory.GetParent(algorithmsDirectory).FullName;// Path.Combine(baseDirectory, "bin", "Algorithms"); 
+        static DllResolver()
         {
-            string assemblyPath1 = Path.Combine(algorithmsDirectory, new AssemblyName(args.Name).Name + ".dll");
-            return File.Exists(assemblyPath1) ? Assembly.LoadFrom(assemblyPath1) : null;
+            AppDomain.CurrentDomain.AssemblyResolve += new ResolveEventHandler(CurrentDomain_AssemblyResolve);
+        }
+
+        public static void Touch() { }
+
+        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var assemblyname = new AssemblyName(args.Name).Name;
+
+            var assemblyFileName = Path.Combine(algorithmsDirectory, assemblyname + ".dll");
+            if (!File.Exists(assemblyFileName))
+            {
+                assemblyFileName = Path.Combine(binDirectory, assemblyname + ".dll");
+                if (!File.Exists(assemblyFileName))
+                    return null;
+            }
+            return Assembly.LoadFrom(assemblyFileName);
         }
     }
 
