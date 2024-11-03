@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 
+using ImageProcessingApplication.App_Start;
 using ImageProcessingApplication.Code;
 using ImageProcessingApplication.Data;
 
@@ -50,7 +51,8 @@ namespace ImageProcessingApplication
 
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            
+
+            DatabaseSeeder.SeedUsersAndRoles();
             // Use Ninject as the MVC dependency resolver
             //DependencyResolver.SetResolver(new NinjectDependencyResolver(Kernel));
         }

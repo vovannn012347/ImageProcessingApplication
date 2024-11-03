@@ -9,6 +9,7 @@ using Accord.Imaging.Filters;
 
 using ProcessorAlgorithm;
 using System.Drawing;
+using Common.Model;
 
 namespace ImageProcessingSobel3
 {

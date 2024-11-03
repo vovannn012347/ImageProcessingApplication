@@ -8,14 +8,16 @@ using ImageProcessingApplication.Code;
 using ImageProcessingApplication.Data.Entities;
 
 using Microsoft.AspNet.Identity.Owin;
+using ImageProcessingApplication.Models;
+using Common;
+using System.Security.Cryptography;
+using System.Text;
+using System;
+using System.Collections.Generic;
+using Common.Model.Areas;
 
 namespace ImageProcessingApplication.Areas.Api.Controllers
 {
-    public class LoginModel
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-    }
 
     [RoutePrefix("api/user")]
     [Authorize]
@@ -50,10 +52,12 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
             if (user == null)
                 return Unauthorized();
 
+            var roles = await UserManager.GetRolesAsync(user.Id);
+
             string ip = IpHelper.GetClientIpAddress(Request);
-            var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, ip);
+            var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, ip, roles);
             //var renewtoken = TokenHelper.GenerateAuthenticatedRenewToken(user.Id, user.UserName, ip);
-            return Ok(new { token = token });
+            return Ok(new TokenModel { Token = token });
         }
 
         [AllowAnonymous]
@@ -80,7 +84,61 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
 
             var token = TokenHelper.GenerateAnonymousToken(ip);
             //var renewtoken = TokenHelper.GenerateAnonymousRenewToken(ip);
-            return Ok(new { token = token });
+            return Ok(new TokenModel { Token = token });
+        }
+
+        [HttpPost]
+        [Route("telegram")]
+        [Authorize(Roles ="Telegram")]
+        public async Task<IHttpActionResult> LoginTelegram(TelegramLoginModel model)
+        {
+            //var telegramToken = SecretConstants.BotToken; // Replace with your bot's token
+            //var checkString = $"auth_date={model.AuthDate}\nid={model.Id}";
+            //if (!string.IsNullOrEmpty(model.FirstName)) checkString += $"\nfirst_name={model.FirstName}";
+            //if (!string.IsNullOrEmpty(model.LastName)) checkString += $"\nlast_name={model.LastName}";
+            //if (!string.IsNullOrEmpty(model.PhotoUrl)) checkString += $"\nphoto_url={model.PhotoUrl}";
+            //if (!string.IsNullOrEmpty(model.UserName)) checkString += $"\nusername={model.UserName}";
+
+            //using (var sha256 = SHA256.Create())
+            //{
+            //    var secretKey = sha256.ComputeHash(Encoding.UTF8.GetBytes(telegramToken));
+            //    var computedHash = new HMACSHA256(secretKey).ComputeHash(Encoding.UTF8.GetBytes(checkString));
+            //    var computedHashString = BitConverter.ToString(computedHash).Replace("-", "").ToLower();
+
+            //    if (computedHashString != model.Hash)
+            //    {
+            //        return BadRequest("Invalid Telegram login attempt.");
+            //    }
+            //}
+
+            var user = await UserManager.FindByNameAsync(model.UserName);
+
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = model.UserName,
+                    Email = Constants.AnonymousUserEmailConstant,
+                    IsAnonymous = true
+                };
+
+                var result = await UserManager.CreateAsync(user);
+
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(string.Concat(result.Errors));
+
+                }
+                else
+                {
+                    await UserManager.AddToRoleAsync(user.Id, "Telegram");
+                    await UserManager.AddToRoleAsync(user.Id, "User");
+                }
+            }
+
+            var token = TokenHelper.GenerateTelegramAuthenticatedToken(user.Id, user.UserName, model.Id.ToString(), new List<string> { "Telegram", "User" });
+            return Ok(new TokenModel { Token = token });
         }
 
         //[HttpPost]
@@ -212,7 +270,8 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                 if (!result3.Succeeded)
                     return GetErrorResult(result3);
 
-                var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, userIp);
+                var roles = await UserManager.GetRolesAsync(user.Id);
+                var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, userIp, roles);
 
                 return Ok(new { token = token });
             }
@@ -252,7 +311,8 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                 var userIpClaim = identity?.FindFirst(Constants.ClaimTypes.IpAddress) ?? null;
                 var userIp = userIpClaim?.Value;
 
-                var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, userIp);
+                var roles = await UserManager.GetRolesAsync(user.Id);
+                var token = TokenHelper.GenerateAuthenticatedToken(user.Id, user.UserName, userIp, roles);
 
                 return Ok(new { token = token });
             }

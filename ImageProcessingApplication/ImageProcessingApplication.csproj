@@ -212,6 +212,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\StartSeed.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\Api\ApiAreaRegistration.cs" />
     <Compile Include="Areas\Api\Controllers\ProcessController.cs" />
@@ -254,7 +255,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\SampleModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -302,6 +302,7 @@
     <Folder Include="Areas\Api\Data\" />
     <Folder Include="Areas\Api\Views\Shared\" />
     <Folder Include="Excluded\" />
+    <Folder Include="Models\Areas\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />
@@ -347,6 +348,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{0C054214-5C35-40EA-A21F-682FF365C6E5}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProcessorAlgorithm\ProcessorAlgorithm.csproj">
       <Project>{7C783F8A-71F4-4266-94A8-89529DA94B3C}</Project>
       <Name>ProcessorAlgorithm</Name>

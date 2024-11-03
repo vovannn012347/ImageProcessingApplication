@@ -79,6 +79,7 @@ namespace ImageProcessingApplication.Code
                     ValidateLifetime = true
                 }
             });
+
         }
     }
 }

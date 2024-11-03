@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace ProcessorAlgorithm
+namespace Common.Model
 {
-    [Serializable]
     public class Argument
     {
         public string Name { get; set; }

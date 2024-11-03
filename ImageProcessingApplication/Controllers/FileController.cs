@@ -7,7 +7,8 @@ namespace ImageProcessingApplication.Controllers
 {
     public class FileController : Controller
     {
-        private static readonly Dictionary<string, string> MimeTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, string> MimeTypes 
+            = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { ".jpg", "image/jpeg" },
             { ".jpeg", "image/jpeg" },
@@ -26,7 +27,7 @@ namespace ImageProcessingApplication.Controllers
             { ".json", "application/json" }
         };
 
-        private static string GetContentType(string extension)
+        public static string GetContentType(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {

@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.ServiceModel.Channels;
 using System.Web;
 
+using Common.Model;
+
 using ProcessorAlgorithm;
 
 namespace ImageProcessingApplication.Code

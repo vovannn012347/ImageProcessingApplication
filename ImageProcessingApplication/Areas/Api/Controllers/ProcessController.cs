@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Linq;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Common.Model;
 
 namespace ImageProcessingApplication.Areas.Api.Controllers
 {
@@ -43,15 +44,6 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
             _dbContext = dbContext;
         }
         
-        public class ProcessReturn
-        {
-            public string ProcessId { get; set; }
-            public string CodeName { get; set; }
-            public string FriendlyName { get; set; }
-            
-            public ArgumentDefinition[] InputParams { get; set; }
-            public ArgumentDefinition[] OutputParams { get; set; }
-        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -102,7 +94,7 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
             //return ONLY sobel edge detection processing data
             if(id == "sobel_processing_guid")
             {
-                return Ok(JsonConvert.SerializeObject(new ProcessReturn
+                return Ok(new ProcessReturn
                 {
                     ProcessId = "sobel_processing_guid",
                     CodeName = "sobel_edge",
@@ -119,8 +111,7 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                             Type = ArgumentType.Image
                         }
                     }
-                }
-                ));
+                });
             }
 
             return BadRequest("Not Found");
@@ -358,7 +349,7 @@ namespace ImageProcessingApplication.Areas.Api.Controllers
                 return InternalServerError(ex);
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
 

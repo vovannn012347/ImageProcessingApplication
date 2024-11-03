@@ -20,6 +20,7 @@ namespace ImageProcessingApplication.Code
         {
             public const string IpAddress = "Tracked_ip";
             public const string Anonymous = "anonymous";
+            public const string TelegramId = "telegram_id";
         }
 
         public const string AnonymousUserConstant = "anonymous";

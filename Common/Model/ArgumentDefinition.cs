@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace ProcessorAlgorithm
+namespace Common.Model
 {
-    [Serializable]
     public enum ArgumentType
     {
         String,
@@ -11,7 +10,6 @@ namespace ProcessorAlgorithm
         Double
     }
 
-    [Serializable]
     public class ArgumentDefinition
     {
         public ArgumentType Type { get; set; }

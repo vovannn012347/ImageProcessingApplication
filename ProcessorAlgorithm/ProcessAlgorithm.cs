@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using Common.Model;
+
 using Newtonsoft.Json;
 
 namespace ProcessorAlgorithm

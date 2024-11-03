@@ -79,7 +79,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="SecretConstants.cs" />
     <Compile Include="TelegramBot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -88,6 +87,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{0C054214-5C35-40EA-A21F-682FF365C6E5}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProcessorAlgorithm\ProcessorAlgorithm.csproj">
       <Project>{7C783F8A-71F4-4266-94A8-89529DA94B3C}</Project>
       <Name>ProcessorAlgorithm</Name>
